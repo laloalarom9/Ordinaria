@@ -1,18 +1,17 @@
 package org.vaadin.example.model;
 
-import dis.ufv.OrdinariaAPI.dis.ufv.OrdinariaAPI.model.Direccion;
-import dis.ufv.OrdinariaAPI.dis.ufv.OrdinariaAPI.model.MetodoPago;
-
 import java.util.UUID;
+import org.vaadin.example.model.DireccionFront;
+import org.vaadin.example.model.MetodoPagoFront;
 
-public class User {
+public class UserFront {
     private UUID id;
     private String nombre;
     private String apellidos;
     private String nif;
-    private Direccion direccion;
+    private DireccionFront direccion;
     private String email;
-    private MetodoPago metodoPago;
+    private MetodoPagoFront metodoPago;
 
     // Getters y setters
     public UUID getId() {
@@ -47,11 +46,11 @@ public class User {
         this.nif = nif;
     }
 
-    public Direccion getDireccion() {
+    public DireccionFront getDireccion() {
         return direccion;
     }
 
-    public void setDireccion(Direccion direccion) {
+    public void setDireccion(DireccionFront direccion) {
         this.direccion = direccion;
     }
 
@@ -63,11 +62,11 @@ public class User {
         this.email = email;
     }
 
-    public MetodoPago getMetodoPago() {
+    public MetodoPagoFront getMetodoPago() {
         return metodoPago;
     }
 
-    public void setMetodoPago(MetodoPago metodoPago) {
+    public void setMetodoPago(MetodoPagoFront metodoPago) {
         this.metodoPago = metodoPago;
     }
 }

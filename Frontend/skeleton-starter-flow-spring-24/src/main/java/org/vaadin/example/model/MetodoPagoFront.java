@@ -1,6 +1,6 @@
 package org.vaadin.example.model;
 
-public class MetodoPago {
+public class MetodoPagoFront {
     private long numeroTarjeta;
     private String nombreAsociado;
 

@@ -1,6 +1,6 @@
 package org.vaadin.example.model;
 
-public class Direccion {
+public class DireccionFront {
     private String calle;
     private int numero;
     private String codigoPostal;
