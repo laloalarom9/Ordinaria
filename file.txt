@@ -1,0 +1,17 @@
+# Referencias de ejecución
+
+BACKEND:
+docker build -t backend:latest .
+docker run -d -p 8080:8080 backend:latest
+
+FRONTEND:
+docker build -t frontend:latest .
+docker run -d -p 8081:8081 frontend:latest
+
+Puerto backend: 8080
+Puerto frontend: 8081
+
+
+https://github.com/laloalarom9/Examen.git
+
+https://chatgpt.com/share/685d2c74-3118-8010-b1b9-58954893d4dc
