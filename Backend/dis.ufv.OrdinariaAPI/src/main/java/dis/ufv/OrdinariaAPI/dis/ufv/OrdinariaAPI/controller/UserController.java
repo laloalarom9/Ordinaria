@@ -5,6 +5,7 @@ import dis.ufv.OrdinariaAPI.dis.ufv.OrdinariaAPI.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,15 +41,21 @@ public class UserController {
     // GET /api/usuarios/pdf
     @GetMapping("/pdf")
     public ResponseEntity<byte[]> generarPdfUsuarios() {
-        byte[] pdfBytes = userService.generatePdf();
-        if (pdfBytes == null) {
+        byte[] pdf = userService.generatePdf();
+
+        if (pdf == null || pdf.length == 0) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("Content-Disposition", "inline; filename=usuarios.pdf");
-        headers.add("Content-Type", "application/pdf");
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "usuarios_" + System.currentTimeMillis() + ".pdf");
+        headers.setCacheControl("must-revalidate, post-check=0, pre-check=0");
 
-        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
+        return new ResponseEntity<>(pdf, headers, HttpStatus.OK);
     }
+
+
+
+
 }

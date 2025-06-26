@@ -1,21 +1,26 @@
 package org.vaadin.example.views;
-import java.time.LocalDate;
+
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 import org.vaadin.example.client.ApiClient;
 import org.vaadin.example.model.DireccionFront;
 import org.vaadin.example.model.MetodoPagoFront;
 import org.vaadin.example.model.UserFront;
-import com.vaadin.flow.component.dialog.Dialog;
 
+import java.io.ByteArrayInputStream;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
+
 @Route("")
 public class MainView extends VerticalLayout {
 
@@ -56,33 +61,33 @@ public class MainView extends VerticalLayout {
             mostrarUsuarios(); // refrescar grid
         });
 
-        // Botón para descargar PDF
+        // Botón para descargar PDF (usando Anchor para descarga directa)
+        Button descargarPdfBtn = new Button("Descargar PDF", event -> {
+            byte[] pdfBytes = ApiClient.generatePdf();
 
-
-        Button descargarPdf = new Button("Descargar PDF", event -> {
-            byte[] pdf = ApiClient.generatePdf();
-            if (pdf != null) {
-                String fecha = LocalDate.now().toString(); // Formato: 2025-06-23
-                String base64 = java.util.Base64.getEncoder().encodeToString(pdf);
-                String filename = "usuarios_" + fecha + ".pdf";
-
-                getUI().ifPresent(ui ->
-                        ui.getPage().open("data:application/pdf;base64," + base64 +
-                                "#toolbar=0", "_blank")
-                );
-            } else {
-                Notification.show("No se pudo generar el PDF");
+            if (pdfBytes == null || pdfBytes.length == 0) {
+                Notification.show("Error al generar el PDF.");
+                return;
             }
-        });
-// Layouts organizados
-HorizontalLayout campos = new HorizontalLayout(nombre, apellidos, email, titular);
 
+            StreamResource pdfResource = new StreamResource(
+                    "usuarios_" + System.currentTimeMillis() + ".pdf",
+                    () -> new ByteArrayInputStream(pdfBytes)
+            );
+
+            Anchor downloadLink = new Anchor(pdfResource, "Descargar PDF");
+            downloadLink.getElement().setAttribute("download", true);
+            downloadLink.getStyle().set("display", "none");
+
+            add(downloadLink); // importante: tiene que estar en el layout antes de hacer click
+            downloadLink.getElement().callJsFunction("click");
+        });
 
 
         // Layouts organizados
-        HorizontalLayout botones = new HorizontalLayout(guardar, descargarPdf);
-add(campos, ciudad, botones, grid);
-
+        HorizontalLayout campos = new HorizontalLayout(nombre, apellidos, email, titular);
+        HorizontalLayout botones = new HorizontalLayout(guardar, descargarPdfBtn);
+        add(campos, ciudad, botones, grid);
     }
 
     private void mostrarUsuarios() {
@@ -103,9 +108,8 @@ add(campos, ciudad, botones, grid);
             UserFront usuario = event.getItem();
             mostrarDialogoDetalles(usuario);
         });
-
-
     }
+
     private void mostrarDialogoEdicion(UserFront user) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Editar Usuario");
@@ -129,14 +133,13 @@ add(campos, ciudad, botones, grid);
             metodo.setNombreAsociado(titular.getValue());
             user.setMetodoPago(metodo);
 
-            ApiClient.actualizarUsuario(user.getId(), user); // PUT /api/usuarios/{id}
+            ApiClient.actualizarUsuario(user.getId(), user);
             dialog.close();
-            mostrarUsuarios(); // refresca la tabla
+            mostrarUsuarios();
             Notification.show("Usuario actualizado");
         });
 
         Button cancelar = new Button("Cancelar", e -> dialog.close());
-
         dialog.add(new VerticalLayout(nombre, apellidos, email, ciudad, titular));
         dialog.getFooter().add(new HorizontalLayout(cancelar, guardar));
         dialog.open();
@@ -158,5 +161,4 @@ add(campos, ciudad, botones, grid);
         dialog.add(layout);
         dialog.open();
     }
-
 }

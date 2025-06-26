@@ -1,11 +1,10 @@
 package dis.ufv.OrdinariaAPI.dis.ufv.OrdinariaAPI.repository;
 
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Paragraph;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.pdf.PdfWriter;
 import dis.ufv.OrdinariaAPI.dis.ufv.OrdinariaAPI.model.User;
 
 import java.io.*;
@@ -17,7 +16,6 @@ import java.util.UUID;
 public class UserRepository {
 
     private static final String RUTA_JSON = "data/usuarios.json";
-
     private final List<User> usuarios;
 
     public UserRepository() {
@@ -30,7 +28,7 @@ public class UserRepository {
             return new Gson().fromJson(reader, listType);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ArrayList<>(); // Lista vacía si falla
+            return new ArrayList<>();
         }
     }
 
@@ -48,39 +46,64 @@ public class UserRepository {
 
     public void addUsuario(User user) {
         usuarios.add(user);
-        guardarUsuariosEnJson(); // ✅ Guarda cambios
+        guardarUsuariosEnJson();
     }
 
     public void updateUsuario(UUID id, User userActualizado) {
         for (int i = 0; i < usuarios.size(); i++) {
             if (usuarios.get(i).getId().equals(id)) {
                 usuarios.set(i, userActualizado);
-                guardarUsuariosEnJson(); // ✅ Guarda cambios
+                guardarUsuariosEnJson();
                 return;
             }
         }
     }
 
     public byte[] generatePdfFromUsuarios() {
-        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-            PdfWriter writer = new PdfWriter(baos);
-            PdfDocument pdfDoc = new PdfDocument(writer);
-            Document document = new Document(pdfDoc);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-            document.add(new Paragraph("Lista de Usuarios:"));
-            for (User user : usuarios) {
-                document.add(new Paragraph(
-                        "ID: " + user.getId() +
-                                ", Nombre: " + user.getNombre() +
-                                ", Email: " + user.getEmail()
-                ));
+        try {
+            Document doc = new Document();
+            PdfWriter writer = PdfWriter.getInstance(doc, baos);
+            doc.open();
+
+            doc.add(new Paragraph("Listado de Usuarios:\n\n"));
+
+            for (User user : cargarUsuarios()) {
+                StringBuilder linea = new StringBuilder();
+                linea.append("ID: ").append(user.getId()).append("\n")
+                        .append("Nombre: ").append(user.getNombre()).append("\n")
+                        .append("Apellidos: ").append(user.getApellidos()).append("\n")
+                        .append("Email: ").append(user.getEmail()).append("\n");
+
+                if (user.getDireccion() != null)
+                    linea.append("Ciudad: ").append(user.getDireccion().getCiudad()).append("\n");
+
+                if (user.getMetodoPago() != null)
+                    linea.append("Titular tarjeta: ").append(user.getMetodoPago().getNombreAsociado()).append("\n");
+
+                linea.append("-----------------------------\n");
+
+                doc.add(new Paragraph(linea.toString()));
             }
 
-            document.close();
+            doc.close();
+            writer.close(); // aunque no es obligatorio, por limpieza
+            baos.flush();
             return baos.toByteArray();
+
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            try {
+                baos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
+
+
+
 }

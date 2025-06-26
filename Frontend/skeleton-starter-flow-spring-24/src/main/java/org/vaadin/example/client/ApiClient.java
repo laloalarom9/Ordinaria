@@ -64,12 +64,18 @@ public class ApiClient {
             HttpResponse<byte[]> response = HttpClient.newHttpClient()
                     .send(request, HttpResponse.BodyHandlers.ofByteArray());
 
-            return response.body();
+            if (response.statusCode() == 200) {
+                return response.body();
+            } else {
+                System.err.println("Error al obtener PDF: código " + response.statusCode());
+                return null;
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
     }
+
     public static void actualizarUsuario(UUID id, UserFront user) {
         try {
             HttpClient client = HttpClient.newHttpClient();
