@@ -74,14 +74,15 @@ public class MainView extends VerticalLayout {
                 Notification.show("No se pudo generar el PDF");
             }
         });
+// Layouts organizados
+HorizontalLayout campos = new HorizontalLayout(nombre, apellidos, email, titular);
 
 
 
         // Layouts organizados
-        HorizontalLayout campos = new HorizontalLayout(nombre, apellidos, email, ciudad, titular);
         HorizontalLayout botones = new HorizontalLayout(guardar, descargarPdf);
+add(campos, ciudad, botones, grid);
 
-        add(campos, botones, grid);
     }
 
     private void mostrarUsuarios() {
@@ -98,6 +99,11 @@ public class MainView extends VerticalLayout {
             Registration registration = editarBtn.addClickListener(e -> mostrarDialogoEdicion(user));
             return editarBtn;
         }).setHeader("Editar");
+        grid.addItemDoubleClickListener(event -> {
+            UserFront usuario = event.getItem();
+            mostrarDialogoDetalles(usuario);
+        });
+
 
     }
     private void mostrarDialogoEdicion(UserFront user) {
@@ -136,5 +142,21 @@ public class MainView extends VerticalLayout {
         dialog.open();
     }
 
+    private void mostrarDialogoDetalles(UserFront user) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Detalles del Usuario");
+
+        VerticalLayout layout = new VerticalLayout();
+        layout.add(new TextField("Nombre", user.getNombre()));
+        layout.add(new TextField("Apellidos", user.getApellidos()));
+        layout.add(new TextField("Email", user.getEmail()));
+        layout.add(new TextField("Ciudad", user.getDireccion() != null ? user.getDireccion().getCiudad() : ""));
+        layout.add(new TextField("Titular tarjeta", user.getMetodoPago() != null ? user.getMetodoPago().getNombreAsociado() : ""));
+
+        Button cerrar = new Button("Cerrar", e -> dialog.close());
+        dialog.getFooter().add(cerrar);
+        dialog.add(layout);
+        dialog.open();
+    }
 
 }

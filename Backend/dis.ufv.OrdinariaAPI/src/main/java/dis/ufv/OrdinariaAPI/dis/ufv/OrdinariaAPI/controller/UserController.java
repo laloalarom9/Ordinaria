@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/usuarios")
@@ -30,10 +31,11 @@ public class UserController {
     }
 
     // PUT /api/usuarios
-    @PutMapping
-    public void actualizarUsuario(@RequestBody User user) {
-        userService.updateUser(user);
+    @PutMapping("/{id}")
+    public void actualizarUsuario(@PathVariable UUID id, @RequestBody User user) {
+        userService.updateUser(id, user);
     }
+
 
     // GET /api/usuarios/pdf
     @GetMapping("/pdf")
