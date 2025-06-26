@@ -15,7 +15,7 @@ import java.util.UUID;
 
 public class UserRepository {
 
-    private static final String RUTA_JSON = "data/usuarios.json";
+    private static final String RUTA_JSON = "Backend\\dis.ufv.OrdinariaAPI/data/usuarios.json";
     private final List<User> usuarios;
 
     public UserRepository() {
